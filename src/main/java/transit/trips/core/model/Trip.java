@@ -3,8 +3,12 @@ package transit.trips.core.model;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.ZonedDateTime;
+import java.util.UUID;
 
 public interface Trip {
+
+	UUID getId();
+
 	ZonedDateTime getStartedDateTime();
 
 	ZonedDateTime getFinishedDateTime();

@@ -3,12 +3,14 @@ package transit.trips.bus.model;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.ZonedDateTime;
+import java.util.UUID;
 
 import transit.trips.core.model.Trip;
 import transit.trips.core.model.TripStatus;
 
 public class BusTrip implements Trip {
 
+	private UUID id;
 	private ZonedDateTime startedDateTime;
 	private ZonedDateTime finishedDateTime;
 	private Duration duration;
@@ -21,12 +23,30 @@ public class BusTrip implements Trip {
 	private TripStatus status;
 
 	public BusTrip(ZonedDateTime startedDateTime, String fromStopId, String vehicleId, String primaryAccountNumber,
-			String companyId) {
+			String companyId, TripStatus status) {
+		this.id = UUID.randomUUID();
 		this.startedDateTime = startedDateTime;
 		this.fromStopId = fromStopId;
 		this.vehicleId = vehicleId;
 		this.primaryAccountNumber = primaryAccountNumber;
 		this.companyId = companyId;
+		this.status = status;
+	}
+
+	public BusTrip(UUID id, ZonedDateTime startedDateTime, String fromStopId, String vehicleId,
+			String primaryAccountNumber, String companyId, TripStatus status) {
+		this.id = id;
+		this.startedDateTime = startedDateTime;
+		this.fromStopId = fromStopId;
+		this.vehicleId = vehicleId;
+		this.primaryAccountNumber = primaryAccountNumber;
+		this.companyId = companyId;
+		this.status = status;
+	}
+
+	@Override
+	public UUID getId() {
+		return id;
 	}
 
 	@Override

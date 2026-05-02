@@ -16,7 +16,6 @@ import transit.trips.core.service.TripMapper;
 import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.util.Optional;
-
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -44,7 +43,7 @@ class BusTripMapperTest {
 
 		var existingTrip = mock(Trip.class);
 
-		when(repository.findById(pan)).thenReturn(Optional.of(existingTrip));
+		when(repository.findActiveTripByPrimaryAccountNumber(pan)).thenReturn(Optional.of(existingTrip));
 
 		Tap tap = mock(Tap.class);
 		when(tap.getType()).thenReturn(TapType.ON);
@@ -73,7 +72,7 @@ class BusTripMapperTest {
 		var pan = "5500005555555559";
 		var now = ZonedDateTime.now();
 
-		when(repository.findById(pan)).thenReturn(Optional.empty());
+		when(repository.findActiveTripByPrimaryAccountNumber(pan)).thenReturn(Optional.empty());
 
 		Tap tap = mock(Tap.class);
 		when(tap.getType()).thenReturn(TapType.ON);
@@ -101,7 +100,7 @@ class BusTripMapperTest {
 		var pan = "5500005555555559";
 		var now = ZonedDateTime.now();
 
-		when(repository.findById(pan)).thenReturn(Optional.empty());
+		when(repository.findActiveTripByPrimaryAccountNumber(pan)).thenReturn(Optional.empty());
 
 		Tap tap = mock(Tap.class);
 		when(tap.getType()).thenReturn(TapType.OFF);
@@ -129,7 +128,7 @@ class BusTripMapperTest {
 
 		var existingTrip = mock(Trip.class);
 
-		when(repository.findById(pan)).thenReturn(Optional.of(existingTrip));
+		when(repository.findActiveTripByPrimaryAccountNumber(pan)).thenReturn(Optional.of(existingTrip));
 		when(existingTrip.getStartedDateTime()).thenReturn(start);
 		when(existingTrip.getFromStopId()).thenReturn("Stop1");
 		when(existingTrip.getVehicleId()).thenReturn("Bus1");

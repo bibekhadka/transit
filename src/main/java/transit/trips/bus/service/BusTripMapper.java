@@ -22,7 +22,7 @@ public class BusTripMapper implements TripMapper {
 
 	@Override
 	public List<Trip> toTrip(Tap tap) {
-		var existingTrip = repository.findById(tap.getPrimaryAccountNumber());
+		var existingTrip = repository.findActiveTripByPrimaryAccountNumber(tap.getPrimaryAccountNumber());
 
 		return switch (tap.getType()) {
 		case ON -> handleTapOn(tap, existingTrip);
@@ -56,17 +56,16 @@ public class BusTripMapper implements TripMapper {
 
 	private BusTrip createNewTrip(Tap tap) {
 		return new BusTrip(tap.getDateTime(), tap.getStopId(), tap.getVehicleId(), tap.getPrimaryAccountNumber(),
-				tap.getCompanyId());
+				tap.getCompanyId(), TripStatus.ACTIVE);
 
 	}
 
 	private BusTrip completeTrip(Trip trip, Tap tap) {
-		var busTrip = new BusTrip(trip.getStartedDateTime(), trip.getFromStopId(), trip.getVehicleId(),
-				trip.getPrimaryAccountNumber(), trip.getCompanyId());
+		var busTrip = new BusTrip(trip.getId(), trip.getStartedDateTime(), trip.getFromStopId(), trip.getVehicleId(),
+				trip.getPrimaryAccountNumber(), trip.getCompanyId(), TripStatus.COMPLETED);
 		busTrip.setFinishedDateTime(tap.getDateTime());
 		busTrip.setToStopId(tap.getStopId());
 		busTrip.setDuration(Duration.between(trip.getStartedDateTime(), tap.getDateTime()));
-		busTrip.setStatus(TripStatus.COMPLETED);
 		return busTrip;
 
 	}
