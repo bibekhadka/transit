@@ -33,6 +33,9 @@ public class BusTripRepository implements TripRepository {
 
 	@Override
 	public Optional<Trip> findActiveTripByPrimaryAccountNumber(String pan) {
+		if (pan == null) {
+			return Optional.empty();
+		}
 		UUID tripId = activeTripByPan.get(pan);
 		return tripId == null ? Optional.empty() : Optional.ofNullable(trips.get(tripId));
 	}

@@ -7,6 +7,7 @@ import java.util.UUID;
 
 import transit.trips.core.model.Trip;
 import transit.trips.core.model.TripStatus;
+import transit.trips.core.service.fare.FarePolicy;
 
 public class BusTrip implements Trip {
 
@@ -99,10 +100,6 @@ public class BusTrip implements Trip {
 		return status;
 	}
 
-	public void setStartedDateTime(ZonedDateTime startedDateTime) {
-		this.startedDateTime = startedDateTime;
-	}
-
 	public void setFinishedDateTime(ZonedDateTime finishedDateTime) {
 		this.finishedDateTime = finishedDateTime;
 	}
@@ -111,32 +108,17 @@ public class BusTrip implements Trip {
 		this.duration = duration;
 	}
 
-	public void setFromStopId(String fromStopId) {
-		this.fromStopId = fromStopId;
-	}
-
 	public void setToStopId(String toStopId) {
 		this.toStopId = toStopId;
 	}
 
-	public void setChargeAmount(BigDecimal chargeAmount) {
-		this.chargeAmount = chargeAmount;
-	}
-
-	public void setCompanyId(String companyId) {
-		this.companyId = companyId;
-	}
-
-	public void setVehicleId(String vehicleId) {
-		this.vehicleId = vehicleId;
-	}
-
-	public void setPrimaryAccountNumber(String primaryAccountNumber) {
-		this.primaryAccountNumber = primaryAccountNumber;
-	}
-
 	public void setStatus(TripStatus status) {
 		this.status = status;
+	}
+
+	@Override
+	public void processFare(FarePolicy farePolicy) {
+		this.chargeAmount = farePolicy.calculateFare(this);
 	}
 
 }

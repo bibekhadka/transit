@@ -16,7 +16,12 @@ public class CreditCardTap implements Tap {
 
 	public CreditCardTap(TapType type, String stopId, String companyId, String vehicleId, String primaryAccountNumber,
 			ZonedDateTime dateTime) {
-
+		this.type = type;
+		this.stopId = stopId;
+		this.companyId = companyId;
+		this.vehicleId = vehicleId;
+		this.primaryAccountNumber = primaryAccountNumber;
+		this.dateTime = dateTime;
 	}
 
 	@Override

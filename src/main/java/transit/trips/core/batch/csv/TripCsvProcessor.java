@@ -4,8 +4,10 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.ZonedDateTime;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
@@ -18,49 +20,58 @@ import transit.trips.core.repository.TripRepository;
 import transit.trips.core.service.TripService;
 
 public class TripCsvProcessor implements TripBatchProcessor {
+
+	public static final DateTimeFormatter DATETIME_FORMATTER = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+	public static final ZoneId DEFAULT_ZONE = ZoneId.of("UTC");
+
 	private final TripService tripService;
 	private final TripRepository repository;
-
-	private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
 
 	public TripCsvProcessor(TripService tripService, TripRepository repository) {
 		this.tripService = tripService;
 		this.repository = repository;
 	}
 
-	public void process(String inputPath, String outputPath) throws IOException {
-		try (BufferedReader reader = Files.newBufferedReader(Paths.get(inputPath))) {
+	public void process(String input, String output) throws IOException {
+		try (BufferedReader reader = new BufferedReader(Files.newBufferedReader(Paths.get(input)))) {
 
-			reader.readLine(); // Header
+			reader.readLine(); // header
 
 			String line;
 			while ((line = reader.readLine()) != null) {
-
 				Tap tap = parseTap(line);
 				tripService.processTap(tap);
 			}
 		}
 
-		writeTrips(outputPath);
+		writeTrips(output);
 	}
 
 	private Tap parseTap(String line) {
 
 		String[] parts = line.split(",");
 
+		var localDateTime = LocalDateTime.parse(parts[1].trim(), DATETIME_FORMATTER);
+
 		return new CreditCardTap(TapType.valueOf(parts[2].trim().toUpperCase()), // TapType
 				parts[3].trim(), // StopId
 				parts[4].trim(), // CompanyId
 				parts[5].trim(), // VehicleID
 				parts[6].trim(), // PAN
-				ZonedDateTime.parse(parts[1].trim(), FORMATTER)); // DateTime
+				localDateTime.atZone(DEFAULT_ZONE)); // DateTime
 	}
 
 	private void writeTrips(String outputPath) throws IOException {
 
-		try (BufferedWriter writer = Files.newBufferedWriter(Paths.get(outputPath))) {
+		Path path = Paths.get(outputPath);
+		if (path.getParent() != null) {
+			Files.createDirectories(path.getParent());
+		}
 
-			writer.write("Started, Finished, DurationSecs, FromStopId, ToStopId, ChargeAmount, CompanyId, BusID, PAN, Status"); // Header
+		try (BufferedWriter writer = Files.newBufferedWriter(path)) {
+
+			writer.write(
+					"Started, Finished, DurationSecs, FromStopId, ToStopId, ChargeAmount, CompanyId, BusID, PAN, Status");
 			writer.newLine();
 
 			List<Trip> trips = repository.findAll();
@@ -73,8 +84,9 @@ public class TripCsvProcessor implements TripBatchProcessor {
 	}
 
 	private String formatTrip(Trip trip) {
-		return String.format("%s, %s, %d, %s, %s, $%.2f, %s, %s, %s, %s", trip.getStartedDateTime().format(FORMATTER),
-				trip.getFinishedDateTime() == null ? "" : trip.getFinishedDateTime().format(FORMATTER),
+		return String.format("%s, %s, %d, %s, %s, $%.2f, %s, %s, %s, %s",
+				trip.getStartedDateTime().format(DATETIME_FORMATTER),
+				trip.getFinishedDateTime() == null ? "" : trip.getFinishedDateTime().format(DATETIME_FORMATTER),
 				trip.getDuration() == null ? 0 : trip.getDuration().toSeconds(), trip.getFromStopId(),
 				trip.getToStopId(), trip.getChargeAmount(), trip.getCompanyId(), trip.getVehicleId(),
 				trip.getPrimaryAccountNumber(), trip.getStatus());

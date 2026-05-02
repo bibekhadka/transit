@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.util.UUID;
+import transit.trips.core.service.fare.FarePolicy;
 
 public interface Trip {
 
@@ -30,5 +31,7 @@ public interface Trip {
 	TripStatus getStatus();
 
 	void setStatus(TripStatus status);
+
+	void processFare(FarePolicy farePolicy);
 
 }
