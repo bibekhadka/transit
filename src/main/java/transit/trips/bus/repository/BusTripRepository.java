@@ -1,5 +1,7 @@
 package transit.trips.bus.repository;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -47,5 +49,10 @@ public class BusTripRepository implements TripRepository {
 			activeTripByPan.computeIfPresent(removed.getPrimaryAccountNumber(),
 					(pan, existingId) -> existingId.equals(trip.getId()) ? null : existingId);
 		}
+	}
+
+	@Override
+	public List<Trip> findAll() {
+		return new ArrayList<>(trips.values());
 	}
 }

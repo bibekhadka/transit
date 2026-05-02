@@ -1,5 +1,6 @@
 package transit.trips.core.repository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -12,7 +13,9 @@ public interface TripRepository {
 	void remove(Trip trip);
 
 	Optional<Trip> findById(UUID id);
-	
+
 	Optional<Trip> findActiveTripByPrimaryAccountNumber(String pan);
+
+	List<Trip> findAll();
 
 }
