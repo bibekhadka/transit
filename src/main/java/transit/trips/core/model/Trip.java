@@ -25,4 +25,6 @@ public interface Trip {
 
 	TripStatus getStatus();
 
+	void setStatus(TripStatus status);
+
 }

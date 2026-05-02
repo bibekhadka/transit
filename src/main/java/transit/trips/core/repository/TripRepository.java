@@ -1,5 +1,7 @@
 package transit.trips.core.repository;
 
+import java.util.Optional;
+
 import transit.trips.core.model.Trip;
 
 public interface TripRepository {
@@ -8,6 +10,6 @@ public interface TripRepository {
 
 	void remove(Trip trip);
 
-	Trip findById(String id);
+	Optional<Trip> findById(String id);
 
 }
