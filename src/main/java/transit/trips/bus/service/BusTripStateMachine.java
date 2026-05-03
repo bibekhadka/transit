@@ -5,6 +5,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import transit.trips.bus.model.BusTrip;
 import transit.trips.core.model.Tap;
 import transit.trips.core.model.Trip;
@@ -13,6 +16,8 @@ import transit.trips.core.service.TripStateMachine;
 import transit.trips.core.service.fare.FarePolicy;
 
 public class BusTripStateMachine implements TripStateMachine {
+
+	private static final Logger log = LoggerFactory.getLogger(BusTripStateMachine.class);
 
 	@Override
 	public List<Trip> apply(Tap tap, Optional<Trip> activeTrip, FarePolicy farePolicy) {
@@ -27,11 +32,13 @@ public class BusTripStateMachine implements TripStateMachine {
 		var trips = new ArrayList<Trip>();
 		if (activeTrip.isPresent()) {
 			var incomplete = activeTrip.get();
+			log.info("Marking trip {} as INCOMPLETE due to new ON tap", incomplete.getId());
 			incomplete.setStatus(TripStatus.INCOMPLETE);
 			incomplete.processFare(farePolicy);
 			trips.add(incomplete);
 		}
 		var active = createActiveTrip(tap);
+		log.info("Creating new ACTIVE trip {} from stop {}", active.getId(), tap.getStopId());
 		active.processFare(farePolicy);
 		trips.add(active);
 		return trips;
@@ -41,12 +48,14 @@ public class BusTripStateMachine implements TripStateMachine {
 	private List<Trip> offTap(Tap tap, Optional<Trip> activeTrip, FarePolicy farePolicy) {
 		var trips = new ArrayList<Trip>();
 		if (activeTrip.isEmpty()) {
+			log.info("OFF tap without matching ON. Creating INCOMPLETE trip at stop {}", tap.getStopId());
 			var incomplete = createIncompleteTrip(tap);
 			incomplete.processFare(farePolicy);
 			trips.add(incomplete);
 			return trips;
 		}
 		var completedTrip = completeTrip(activeTrip.get(), tap);
+		log.info("Completing trip {} with status {}", completedTrip.getId(), completedTrip.getStatus());
 		completedTrip.processFare(farePolicy);
 		trips.add(completedTrip);
 		return trips;
@@ -56,7 +65,7 @@ public class BusTripStateMachine implements TripStateMachine {
 		return new BusTrip(tap.getDateTime(), tap.getStopId(), tap.getVehicleId(), tap.getPrimaryAccountNumber(),
 				tap.getCompanyId(), TripStatus.ACTIVE);
 	}
-	
+
 	private BusTrip createIncompleteTrip(Tap tap) {
 		return new BusTrip(tap.getDateTime(), tap.getStopId(), tap.getVehicleId(), tap.getPrimaryAccountNumber(),
 				tap.getCompanyId(), TripStatus.INCOMPLETE);

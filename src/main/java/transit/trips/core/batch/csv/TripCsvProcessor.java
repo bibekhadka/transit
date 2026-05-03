@@ -11,6 +11,9 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import transit.trips.bus.model.CreditCardTap;
 import transit.trips.core.batch.TripBatchProcessor;
 import transit.trips.core.model.Tap;
@@ -20,6 +23,8 @@ import transit.trips.core.repository.TripRepository;
 import transit.trips.core.service.TripService;
 
 public class TripCsvProcessor implements TripBatchProcessor {
+
+	private static final Logger log = LoggerFactory.getLogger(TripCsvProcessor.class);
 
 	public static final DateTimeFormatter DATETIME_FORMATTER = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
 	public static final ZoneId DEFAULT_ZONE = ZoneId.of("UTC");
@@ -33,18 +38,30 @@ public class TripCsvProcessor implements TripBatchProcessor {
 	}
 
 	public void process(String input, String output) throws IOException {
+
+		log.info("Starting trip batch processing. input={}, output={}", input, output);
+		int processed = 0;
 		try (BufferedReader reader = new BufferedReader(Files.newBufferedReader(Paths.get(input)))) {
 
 			reader.readLine(); // header
 
 			String line;
 			while ((line = reader.readLine()) != null) {
-				Tap tap = parseTap(line);
-				tripService.processTap(tap);
+				try {
+					Tap tap = parseTap(line);
+					tripService.processTap(tap);
+					processed++;
+				} catch (Exception ex) {
+					log.error("Failed to process line: {}", line, ex);
+				}
 			}
 		}
 
+		log.info("Finished reading input. {} tap records processed.", processed);
+
 		writeTrips(output);
+
+		log.info("Batch processing completed successfully.");
 	}
 
 	private Tap parseTap(String line) {
@@ -61,9 +78,11 @@ public class TripCsvProcessor implements TripBatchProcessor {
 				localDateTime.atZone(DEFAULT_ZONE)); // DateTime
 	}
 
-	private void writeTrips(String outputPath) throws IOException {
+	private void writeTrips(String output) throws IOException {
 
-		Path path = Paths.get(outputPath);
+		log.info("Writing trips to output file {}", output);
+
+		Path path = Paths.get(output);
 		if (path.getParent() != null) {
 			Files.createDirectories(path.getParent());
 		}
@@ -80,7 +99,10 @@ public class TripCsvProcessor implements TripBatchProcessor {
 				writer.write(formatTrip(trip));
 				writer.newLine();
 			}
+
+			log.info("Successfully wrote {} trips to output.", trips.size());
 		}
+
 	}
 
 	private String formatTrip(Trip trip) {
