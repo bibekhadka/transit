@@ -13,6 +13,7 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 import transit.trips.bus.model.CreditCardTap;
 import transit.trips.core.batch.TripBatchProcessor;
@@ -22,6 +23,7 @@ import transit.trips.core.model.Trip;
 import transit.trips.core.repository.TripRepository;
 import transit.trips.core.service.TripService;
 
+@Service
 public class TripCsvProcessor implements TripBatchProcessor {
 
 	private static final Logger log = LoggerFactory.getLogger(TripCsvProcessor.class);

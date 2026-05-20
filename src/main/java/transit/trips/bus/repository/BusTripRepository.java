@@ -10,12 +10,14 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Repository;
 
 import transit.trips.core.model.Trip;
 import transit.trips.core.model.TripStatus;
 import transit.trips.core.repository.TripRepository;
 import static transit.trips.core.util.MaskingUtil.maskPan;
 
+@Repository
 public class BusTripRepository implements TripRepository {
 
 	private static final Logger log = LoggerFactory.getLogger(BusTripRepository.class);

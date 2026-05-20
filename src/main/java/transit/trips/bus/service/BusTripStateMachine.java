@@ -7,6 +7,7 @@ import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 import transit.trips.bus.model.BusTrip;
 import transit.trips.core.model.Tap;
@@ -15,6 +16,7 @@ import transit.trips.core.model.TripStatus;
 import transit.trips.core.service.TripStateMachine;
 import transit.trips.core.service.fare.FarePolicy;
 
+@Component
 public class BusTripStateMachine implements TripStateMachine {
 
 	private static final Logger log = LoggerFactory.getLogger(BusTripStateMachine.class);

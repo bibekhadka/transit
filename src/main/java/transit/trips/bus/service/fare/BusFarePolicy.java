@@ -3,10 +3,13 @@ package transit.trips.bus.service.fare;
 import java.math.BigDecimal;
 import java.util.Map;
 
+import org.springframework.stereotype.Component;
+
 import transit.trips.core.model.Trip;
 import transit.trips.core.model.TripStatus;
 import transit.trips.core.service.fare.FarePolicy;
 
+@Component
 public class BusFarePolicy implements FarePolicy {
 
 	private final Map<String, Map<String, BigDecimal>> fareTable;
