@@ -1,0 +1,14 @@
+spring:
+    application:
+        name: taps-trips
+
+    kafka:
+        bootstrap-servers: localhost:9092
+        streams:
+            application-id: taps-processor-v1
+            properties:
+                default.key.serde: org.apache.kafka.common.serialization.Serdes$StringSerde
+                default.value.serde: org.apache.kafka.common.serialization.Serdes$StringSerde
+
+                replication.factor: 1
+                cache.max.bytes.buffering: 10485760

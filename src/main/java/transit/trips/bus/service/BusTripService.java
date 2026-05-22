@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import transit.trips.core.model.Tap;
@@ -24,6 +25,7 @@ public class BusTripService implements TripService {
 	private final TripRepository repository;
 	private final FarePolicy farePolicy;
 
+	@Autowired
 	public BusTripService(TripStateMachine stateMachine, TripRepository repository, FarePolicy farePolicy) {
 		this.stateMachine = stateMachine;
 		this.repository = repository;
