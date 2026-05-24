@@ -10,6 +10,7 @@ import org.apache.kafka.streams.state.KeyValueStore;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import transit.trips.bus.model.CreditCardTap;
 import transit.trips.core.model.Tap;
 import transit.trips.core.model.Trip;
 import transit.trips.core.model.TripStatus;
@@ -17,7 +18,7 @@ import transit.trips.core.service.TripStateMachine;
 import transit.trips.core.service.fare.FarePolicy;
 
 @Service
-public class TripStreamProcessor implements Processor<String, Tap, String, Trip> {
+public class TripStreamProcessor implements Processor<String, CreditCardTap, String, Trip> {
 
 	private final TripStateMachine stateMachine;
 	private final FarePolicy farePolicy;
@@ -38,7 +39,7 @@ public class TripStreamProcessor implements Processor<String, Tap, String, Trip>
 	}
 
 	@Override
-	public void process(Record<String, Tap> record) {
+	public void process(Record<String, CreditCardTap> record) {
 		String primaryAccountNumber = record.key();
 		Tap tap = record.value();
 		Optional<Trip> active = Optional.ofNullable(store.get(primaryAccountNumber));

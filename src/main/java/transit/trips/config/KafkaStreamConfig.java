@@ -4,6 +4,7 @@ import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.StreamsConfig;
+import org.apache.kafka.streams.kstream.Consumed;
 import org.apache.kafka.streams.kstream.KStream;
 import org.apache.kafka.streams.kstream.Named;
 import org.apache.kafka.streams.state.KeyValueStore;
@@ -19,8 +20,8 @@ import org.springframework.kafka.config.KafkaStreamsConfiguration;
 import org.springframework.kafka.support.serializer.JacksonJsonDeserializer;
 import org.springframework.kafka.support.serializer.JacksonJsonSerializer;
 
-import transit.trips.core.model.Tap;
-import transit.trips.core.model.Trip;
+import transit.trips.bus.model.BusTrip;
+import transit.trips.bus.model.CreditCardTap;
 import transit.trips.core.service.TripStateMachine;
 import transit.trips.core.service.fare.FarePolicy;
 import transit.trips.core.stream.TripStreamProcessor;
@@ -59,22 +60,29 @@ public class KafkaStreamConfig {
 	}
 
 	@Bean
-	public KStream<String, Tap> process(StreamsBuilder builder, StoreBuilder<KeyValueStore<String, Trip>> tripStore) {
+	public Serde<CreditCardTap> tapSerde() {
+		JacksonJsonSerializer<CreditCardTap> serializer = new JacksonJsonSerializer<>();
+		JacksonJsonDeserializer<CreditCardTap> deserializer = new JacksonJsonDeserializer<>(CreditCardTap.class);
+		return Serdes.serdeFrom(serializer, deserializer);
+	}
+
+	@Bean
+	public KStream<String, CreditCardTap> process(StreamsBuilder builder, StoreBuilder<KeyValueStore<String, BusTrip>> tripStore) {
 		builder.addStateStore(tripStore);
-		KStream<String, Tap> taps = builder.stream("taps");
+		KStream<String, CreditCardTap> taps = builder.stream("taps", Consumed.with(Serdes.String(), tapSerde()));
 		taps.process(() -> new TripStreamProcessor(stateMachine, farePolicy), Named.as("trip-processor"), "trip-store");
 		return taps;
 	}
 
 	@Bean
-	public Serde<Trip> tripStateSerde() {
-		JacksonJsonSerializer<Trip> serializer = new JacksonJsonSerializer<>();
-		JacksonJsonDeserializer<Trip> deserializer = new JacksonJsonDeserializer<>(Trip.class);
+	public Serde<BusTrip> tripStateSerde() {
+		JacksonJsonSerializer<BusTrip> serializer = new JacksonJsonSerializer<>();
+		JacksonJsonDeserializer<BusTrip> deserializer = new JacksonJsonDeserializer<>(BusTrip.class);
 		return Serdes.serdeFrom(serializer, deserializer);
 	}
 
 	@Bean
-	public StoreBuilder<KeyValueStore<String, Trip>> tripStore(Serde<Trip> tripStateSerde) {
+	public StoreBuilder<KeyValueStore<String, BusTrip>> tripStore(Serde<BusTrip> tripStateSerde) {
 		return Stores.keyValueStoreBuilder(Stores.persistentKeyValueStore("trip-store"), Serdes.String(),
 				tripStateSerde);
 	}

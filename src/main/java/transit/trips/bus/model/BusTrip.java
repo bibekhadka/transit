@@ -11,6 +11,9 @@ import transit.trips.core.service.fare.FarePolicy;
 
 public class BusTrip implements Trip {
 
+	public BusTrip() {
+	}
+
 	private UUID id;
 	private ZonedDateTime startedDateTime;
 	private ZonedDateTime finishedDateTime;
